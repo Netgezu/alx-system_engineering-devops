@@ -1,30 +1,43 @@
 #!/usr/bin/env bash
-# Manages the program called manage_my_process
+#init script for `manage_my_process` process
 
-FILE="/var/run/my_process.pid"
+argument="$1";
 
-create()
-{
-    sudo touch $FILE
-    sudo bash -c "echo $$ > $FILE"
+function start(){
+    ./manage_my_process;
+    "pgrep -f manage_my_process" >> "/var/run/my_process.pid";
+    echo "manage_my_process started";
 }
 
-if [ "$1" == "start" ]; then
-    create
-    ./manage_my_process &
-    echo "manage_my_process started"
+function stop(){
+    kill -9 "$(pgrep -f manage_my_process )";
+    rm "/var/run/my_process.pid";
+    echo "manage_my_process stopped";
+}
 
-elif [ "$1" == "stop" ]
-then
-    [ -e "/var/run/my_process.pid" ] && sudo pkill -f "./manage_my_process" && rm /var/run/my_process.pid
-    echo "manage_my_process stopped"
+function restart(){
+    kill -9 "$(pgrep -f manage_my_process)";
+    rm "/var/run/my_process.pid";
+    ./manage_my_process;
+    "pgrep -f manage_my_process" >> "/var/run/my_process.pid";
+    echo "manage_my_process restarted";
+}
 
-elif [ "$1" == "restart" ]
-then
-    $0 stop >& /dev/null
-    $0 start >& /dev/null
-    echo "manage_my_process restarted"
+function usage(){
+    echo "Usage: manage_my_process {start|stop|restart}";
+}
 
+
+if [ -n "$argument" ]; then
+    if [ "$argument" == "start" ]; then 
+        start;
+    elif [ "$argument" == "stop" ]; then 
+        stop;
+    elif [ "$argument" == "restart" ]; then 
+        restart;
+    else
+        usage;
+    fi
 else
-    echo "Usage: manage_my_process {start|stop|restart}"
+    usage;
 fi
