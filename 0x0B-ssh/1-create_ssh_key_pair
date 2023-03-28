@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# generate RSA key of giant size
-ssh-keygen -b 4096 -N 'betty' -f 'holberton' -t 'rsa'
+# Creates an RSA key pair
+ssh-keygen -t rsa -f school -b 4096 -N betty
